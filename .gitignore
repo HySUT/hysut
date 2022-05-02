@@ -9,6 +9,9 @@ __pycache__/
 # System files
 .DS_Store
 
+# vscode settings
+.vscode
+
 # Distribution / packaging
 .Python
 build/
