@@ -12,6 +12,7 @@ __pycache__/
 # vscode settings
 .vscode
 
+amin_test.py
 # Distribution / packaging
 .Python
 build/
