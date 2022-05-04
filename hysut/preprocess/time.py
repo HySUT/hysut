@@ -1,4 +1,5 @@
 from hysut.utils.enums import RUN_PERIOD, WARM_PERIOD, COOL_PERIOD
+from hysut.exceptions_logging.exceptions import EssentialSetMissing
 
 
 def read_time_data(time_data, item):
@@ -51,7 +52,7 @@ def read_time_data(time_data, item):
                 f"time definition can be a range (e.g. range(start,end,step)),an integer or a list of integers for '{item}'"
             )
 
-    return {"time": time_collection, "error": errors if len(errors) else None}
+    return {"time": time_collection, "error": errors}
 
 
 def check_time_period_overlaps(periods):
@@ -97,12 +98,28 @@ def check_time_period_overlaps(periods):
 
 
 def check_time_horizon(time_horizon):
+    """Checks/reform the time horzon definition and collects all errors/warnings through multiple functions
+
+    Parameters
+    ----------
+    time_horizon : dict
+        main dict of time_horizon (from yaml file)
+
+    Returns
+    -------
+    dict
+        {
+            "errors" : list of errors
+            "warnings" : list of warnings
+            "time_horizon" : dict of refined time_horizon which is valid only if no error exist.
+        }
+    """
     warnings = []
     errors = []
     time_data = {}
 
     if RUN_PERIOD not in time_horizon:
-        errors.append(f"A model cannot be created without a {RUN_PERIOD}.")
+        raise EssentialSetMissing(f"A model cannot be created without a {RUN_PERIOD}.")
 
     for period in [RUN_PERIOD, WARM_PERIOD, COOL_PERIOD]:
         if period in time_horizon:
@@ -110,21 +127,24 @@ def check_time_horizon(time_horizon):
             given_period = time_horizon[period]
             data = read_time_data(given_period, period)
 
-            if data.get("error") is not None:
-                errors.append(data.get("error"))
+            if len(data.get("error")):
+                errors.extend(data.get("error"))
 
             else:
                 # avoid deuplicate values and sort the years
                 time_data[period] = sorted(set(data.get("time")))
 
-        else:
-            warnings.append(
-                f"{period} is not a valid argument for for time_horizon definition and"
-                " is ignored."
-            )
+    extra_give_periods = set(time_horizon).difference(
+        set([RUN_PERIOD, WARM_PERIOD, COOL_PERIOD])
+    )
+
+    if extra_give_periods:
+        warnings.append(
+            f"{extra_give_periods} is not a valid argument for for time_horizon definition and"
+            " is ignored."
+        )
 
     # catching the errors related to definition of time
-    errors.append(check_time_period_overlaps(time_data))
+    errors.extend(check_time_period_overlaps(time_data))
 
-
-# %%
+    return {"errors": errors, "warnings": warnings, "time_horizon": time_data}
