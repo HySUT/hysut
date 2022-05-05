@@ -1,4 +1,4 @@
-def type_consistency_check(data_list,item=None):
+def type_consistency_check(data_list, item=None):
     """Checks if all the item in a give list have uniform data type
 
     Parameters
@@ -20,7 +20,7 @@ def type_consistency_check(data_list,item=None):
     return []
 
 
-def read_range_function(range_data,item):
+def read_range_function(range_data, item):
     """Reads the range function in data and create a list for the given range
 
     Parameters
@@ -43,4 +43,4 @@ def read_range_function(range_data,item):
     except Exception as error:
         errors = [f"{arg} in 'range' for '{item}'." for arg in error.args]
 
-    return {'data':data,"error":errors}
+    return {"data": data, "error": errors}

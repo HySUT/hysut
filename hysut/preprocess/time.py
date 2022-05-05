@@ -3,6 +3,7 @@ from hysut.exceptions_logging.exceptions import EssentialSetMissing
 from hysut.utils.defaults import Time
 from hysut.utils.tools import read_range_function, type_consistency_check
 
+
 def read_time_data(time_data, item):
     """Reading the time_data for specific item and checking the possible errors
 
@@ -44,9 +45,9 @@ def read_time_data(time_data, item):
                 time_collection.extend(time)
 
         elif isinstance(time, str) and "range" in time:
-            rng_data = read_range_function(time,item)
-            time_collection.extend(rng_data['data'])
-            errors.extend(rng_data['error'])
+            rng_data = read_range_function(time, item)
+            time_collection.extend(rng_data["data"])
+            errors.extend(rng_data["error"])
 
         else:
             errors.append(
@@ -150,6 +151,7 @@ def check_time_horizon(time_horizon):
 
     return {"errors": errors, "warnings": warnings, "time_horizon": time_data}
 
+
 def read_time_slice_data(slices):
     """Read/reform the data for time slices with different formats
 
@@ -168,19 +170,19 @@ def read_time_slice_data(slices):
 
     time_slices = []
     errors = []
-    if isinstance(slices,str):
+    if isinstance(slices, str):
         if "range" in slices:
-            rng_data = read_range_function(slices,'time_slices')
-            time_slices.extend(rng_data['data'])
-            errors.extend(rng_data['error'])
+            rng_data = read_range_function(slices, "time_slices")
+            time_slices.extend(rng_data["data"])
+            errors.extend(rng_data["error"])
         else:
             time_slices.append(slices)
 
-    elif isinstance(slices,int):
+    elif isinstance(slices, int):
         time_slices.append(slices)
 
     # if a list is passed
-    elif isinstance(slices,list):
+    elif isinstance(slices, list):
         # if all data in the list have the same data type
         if type_consistency_check(slices) == []:
             time_slices.extend(slices)
@@ -189,33 +191,50 @@ def read_time_slice_data(slices):
         else:
             for i in slices:
                 data = read_time_slice_data(i)
-                time_slices.extend(data['time_slices'])
-                errors.extend(data['errors'])
+                time_slices.extend(data["time_slices"])
+                errors.extend(data["errors"])
 
     else:
-        errors.append("'time_slices accept only int, str (or range function) or a list of mentioned items.")
+        errors.append(
+            "'time_slices accept only int, str (or range function) or a list of mentioned items."
+        )
 
-
-    return {"time_slices":time_slices,"errors":errors}
-
+    return {"time_slices": time_slices, "errors": errors}
 
 
 def check_time_slices(time_slices):
+    """Checks/reforms time_slices definition and collect all the errors and warnings
+
+    Parameters
+    ----------
+    time_slices : dict
+        {
+            "name" : 'name of the time slice e.g. Hour',
+            "slices" : definition of slices can be given in different modes like: ['Day','Night'] or 'range(1,8761)'
+        }
+
+    Returns
+    -------
+    dict
+        {
+            "errors" : List of errors,
+            "warnings": List of warnings,
+            "time_slices" : reformed dict of time_slices
+        }
+    """
 
     warnings = []
     errors = []
 
     # check if the defualt values do not exist, take care of them!
-    name = time_slices.setdefault(SLICE_NAME,Time.SLICE_NAME)
-    slices = time_slices.setdefault(T_SLICE,Time.T_SLICE)
+    name = time_slices.setdefault(SLICE_NAME, Time.SLICE_NAME)
+    slices = time_slices.setdefault(T_SLICE, Time.T_SLICE)
 
     slices_data = read_time_slice_data(slices)
-    time_slices[T_SLICE] = slices_data['time_slices']
-    errors.extend(slices_data['errors'])
+    time_slices[T_SLICE] = slices_data["time_slices"]
+    errors.extend(slices_data["errors"])
 
-    extra_given_items = set(time_slices).difference(
-        set([SLICE_NAME, T_SLICE])
-    )
+    extra_given_items = set(time_slices).difference(set([SLICE_NAME, T_SLICE]))
 
     if extra_given_items:
         warnings.append(
@@ -224,14 +243,10 @@ def check_time_slices(time_slices):
         )
 
     # check the type_consistency
-    errors.extend(type_consistency_check(slices,'time_slices'))
+    errors.extend(type_consistency_check(slices, "time_slices"))
 
     # check if duplicate values exist
     if len(set(slices)) != len(slices):
         errors.append("duplicate values are not allowed in 'time_slices'.")
 
-    return {"errors": errors,"warnings" : warnings, "time_slices" : time_slices}
-
-
-
-
+    return {"errors": errors, "warnings": warnings, "time_slices": time_slices}
