@@ -2,18 +2,20 @@ import sys
 import os
 
 import pytest
-from yaml import warnings
+
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from hysut.preprocess.time import (
+    check_time_slices,
     read_time_data,
     check_time_period_overlaps,
     check_time_horizon,
+    read_time_slice_data
 )
 
-from hysut.utils.enums import RUN_PERIOD, COOL_PERIOD, WARM_PERIOD
-
+from hysut.utils.enums import RUN_PERIOD, COOL_PERIOD, WARM_PERIOD,T_SLICE,SLICE_NAME
+from hysut.utils.defaults import Time
 from hysut.exceptions_logging.exceptions import EssentialSetMissing
 
 
@@ -151,3 +153,52 @@ def test_check_time_horizon():
     ]
 
     assert warning == expexted_warning
+
+def test_check_time_slices():
+
+    time_slices = {}
+    expected_output = {SLICE_NAME:Time.SLICE_NAME,T_SLICE:Time.T_SLICE}
+    output = check_time_slices(time_slices)
+
+    assert output['time_slices'] == expected_output
+    assert output['warnings'] == []
+
+    time_slices = {SLICE_NAME:"Hour",T_SLICE:list(range(1,25))}
+    expected_output = time_slices
+    output = check_time_slices(time_slices)['time_slices']
+
+    assert expected_output == output
+
+    # passing extra item
+    time_slices = {"dummy":"dummy"}
+    output = check_time_slices(time_slices)['warnings']
+    expected_warning = [f"{{'dummy'}} is not a valid argument for for time_slices definition and is ignored."]
+
+    assert output == expected_warning
+
+    # passing duplicate values
+    time_slices = {T_SLICE:[1,1,2]}
+    output = check_time_slices(time_slices)['errors']
+    expected_error = ["duplicate values are not allowed in 'time_slices'."]
+    assert output == expected_error
+
+
+
+def test_read_time_slice_data():
+    slices = ['Night',['Morning',["Evening",24]]]
+    expected_output = ['Night','Morning',"Evening",24]
+    output = read_time_slice_data(slices)['time_slices']
+
+    assert expected_output == output
+
+    # non acceptable data type
+    excepted_error = ["'time_slices accept only int, str (or range function) or a list of mentioned items."]
+    error = read_time_slice_data(2.3)['errors']
+
+    assert excepted_error == error
+
+    # checking the range
+    expected_output = [2020,2022,2024]
+    output = read_time_slice_data('range(2020,2026,2)')['time_slices']
+
+    assert expected_output == output
