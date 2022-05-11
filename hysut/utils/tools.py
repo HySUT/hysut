@@ -50,6 +50,20 @@ def read_range_function(range_data, item):
 
 
 def print_log(logs, save_file=None):
+    """Make a tabular log file to print as a string/ save in a file
+
+    Parameters
+    ----------
+    logs : list
+        list of errors/warnings
+    save_file : str, optional
+        if it is not None,should contain the directory to save the file , by default None
+
+    Returns
+    -------
+    str
+        tablulated log
+    """
 
     table = [[i + 1, logs[i]] for i in range(len(logs))]
     table = tabulate(table, headers=["Number", "Error/Warning"], tablefmt="pretty")
