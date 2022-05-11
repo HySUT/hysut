@@ -4,7 +4,6 @@ import os
 import pytest
 
 
-
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from hysut.preprocess.time import (
@@ -15,7 +14,14 @@ from hysut.preprocess.time import (
     read_time_slice_data,
 )
 from hysut.preprocess.clusters import add_missing_years_to_cluster, check_years_clusters
-from hysut.utils.enums import ALL_PERIOD, RUN_PERIOD, COOL_PERIOD, WARM_PERIOD, T_SLICE, SLICE_NAME
+from hysut.utils.enums import (
+    ALL_PERIOD,
+    RUN_PERIOD,
+    COOL_PERIOD,
+    WARM_PERIOD,
+    T_SLICE,
+    SLICE_NAME,
+)
 from hysut.utils.defaults import Time
 from hysut.exceptions_logging.exceptions import EssentialSetMissing
 
@@ -156,9 +162,10 @@ def test_check_time_horizon():
     assert warning == expexted_warning
 
     # check all year
-    time_horizon = {RUN_PERIOD : [2021,2022,2023], WARM_PERIOD:[1990,1992]}
-    all_years = check_time_horizon(time_horizon)['time_horizon']
+    time_horizon = {RUN_PERIOD: [2021, 2022, 2023], WARM_PERIOD: [1990, 1992]}
+    all_years = check_time_horizon(time_horizon)["time_horizon"]
     assert all_years[ALL_PERIOD] == time_horizon[WARM_PERIOD] + time_horizon[RUN_PERIOD]
+
 
 def test_check_time_slices():
 
@@ -213,33 +220,37 @@ def test_read_time_slice_data():
     assert expected_output == output
 
 
-
 def test_check_years_clusters():
 
-    years = list(range(2020,2030))
+    years = list(range(2020, 2030))
     clusters = {
-        "cls1" : list(range(2020,2025)),
-        "cls2" : list(range(2025,2027)),
-        "cls3" : 'range(2027,2030)',
+        "cls1": list(range(2020, 2025)),
+        "cls2": list(range(2025, 2027)),
+        "cls3": "range(2027,2030)",
     }
-    output = check_years_clusters(clusters,years)
+    output = check_years_clusters(clusters, years)
     expected_output = {
-        "cls1" : list(range(2020,2025)),
-        "cls2" : list(range(2025,2027)),
-        "cls3" : list(range(2027,2030)),
+        "cls1": list(range(2020, 2025)),
+        "cls2": list(range(2025, 2027)),
+        "cls3": list(range(2027, 2030)),
     }
-    assert expected_output == output['time_clusters']
-    assert output['errors'] == []
+    assert expected_output == output["time_clusters"]
+    assert output["errors"] == []
 
     # pssing duplicated and unsorted
-    clusters = {'cls1':[2025,2020,2020,2021]}
-    assert check_years_clusters(clusters,years)['time_clusters']['cls1'] == [2020,2021,2025]
+    clusters = {"cls1": [2025, 2020, 2020, 2021]}
+    assert check_years_clusters(clusters, years)["time_clusters"]["cls1"] == [
+        2020,
+        2021,
+        2025,
+    ]
+
 
 def test_add_missing_years_to_cluster():
 
-    years = list(range(2020,2031))
-    cluster = {'cls1':list(range(2020,2026))}
-    expected_output = ['cls1',2026,2027,2028,2029,2030]
-    output = add_missing_years_to_cluster(cluster,years)
+    years = list(range(2020, 2031))
+    cluster = {"cls1": list(range(2020, 2023)), "cls2": list(range(2023, 2026))}
+    expected_output = ["cls1", "cls2", 2026, 2027, 2028, 2029, 2030]
+    output = add_missing_years_to_cluster(cluster, years)
 
     assert output == expected_output

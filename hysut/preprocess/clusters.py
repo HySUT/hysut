@@ -19,8 +19,11 @@ def check_years_clusters(clusters, years):
         }
     Returns
     -------
-    _type_
-        _description_
+    dict
+        {
+            "errors" : List of errors,
+            "time_cluster" : dict of clusters (keys represent the name of cluster and values the list of years)
+        }
     """
     errors = []
     time_clusters = {}
@@ -55,24 +58,33 @@ def check_years_clusters(clusters, years):
     return {"errors": errors, "time_clusters": time_clusters}
 
 
-def add_missing_years_to_cluster(cluster, years):
+def add_missing_years_to_cluster(clusters, years):
     """Checks if for a given set of cluster, specific years are missed
 
     Parameters
     ----------
     cluster : dict
         _description_
-    years : _type_
+    years : list
         _description_
 
     Returns
     -------
-    _type_
-        _description_
+    list
+        clusters + years that are not covered by clusters.
+        e.g.
+
+        years = [2021,2022,2023,2024]
+        clusters = {"cls1": [2021],"cls2": [2022,2023]}
+
+        function output will be:
+        ["cls1","cls2",2024]
+
     """
 
-    cluster_vals = list(cluster.values())[0]
+    giveng_years_by_clusters = [
+        year for cluster in clusters.values() for year in cluster
+    ]
+    missing_years = list(set(years).difference(set(giveng_years_by_clusters)))
 
-    missing_years = list(set(years).difference(set(cluster_vals)))
-
-    return [*cluster] + sorted(missing_years)
+    return [*clusters] + sorted(missing_years)
