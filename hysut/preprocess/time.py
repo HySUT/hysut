@@ -36,7 +36,7 @@ def read_time_data(time_data, item):
     errors = []
 
     if not isinstance(time_data, list):
-        return {"error": f"time should be defined as a list for '{item}'."}
+        return {"error": [f"time should be defined as a list for '{item}'."]}
 
     for time in time_data:
 
@@ -142,6 +142,13 @@ def check_time_horizon(time_horizon):
             else:
                 # avoid deuplicate values and sort the years
                 time_data[period] = sorted(set(data.get("time")))
+
+    if RUN_PERIOD not in time_data:
+
+        raise EssentialSetMissing(
+            f"A model cannot be created without a {RUN_PERIOD} period."
+            f"Or {RUN_PERIOD} period is missed or not correctly defined. Following errors are raised: \n{errors}"
+        )
 
     extra_give_periods = set(time_horizon).difference(
         set([RUN_PERIOD, WARM_PERIOD, COOL_PERIOD])

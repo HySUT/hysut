@@ -142,14 +142,11 @@ def test_check_time_horizon():
     assert output["errors"] == []
     assert output["warnings"] == []
 
-    # making error
-    time_horizon = {RUN_PERIOD: [2025.1]}
-    error = check_time_horizon(time_horizon)["errors"]
-    expexted_error = [
-        f"time definition can be a range (e.g. range(start,end,step)),an integer or a list of integers for '{RUN_PERIOD}'"
-    ]
-
-    assert error == expexted_error
+    # making error in RUN_PERIOD
+    with pytest.raises(EssentialSetMissing) as msg:
+        time_horizon = {RUN_PERIOD: [2025.1]}
+        error = check_time_horizon(time_horizon)["errors"]
+        assert "A model cannot be created without" in str(msg.value)
 
     # capture warnings
     time_horizon = {RUN_PERIOD: [2025], "dummy": [2026]}

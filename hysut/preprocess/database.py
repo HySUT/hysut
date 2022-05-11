@@ -1,6 +1,4 @@
 import pandas as pd
-from yaml import warnings
-
 from hysut.preprocess.time import check_time_horizon
 from hysut.utils.enums import TIME_HORIZON, SETTINGS
 from hysut.exceptions_logging.exceptions import TimeHorizonError
@@ -17,7 +15,8 @@ class ModelDataBase:
     def _extract_time_horizon_data(self):
         time = check_time_horizon(self.model_config[TIME_HORIZON])
         errors = time["errors"]
-        warnings.extend(time["warnings"])
+        print(errors)
+        self.warnings.extend(time["warnings"])
         if errors:
             save_directory = self.model_config[SETTINGS]["log_path"]
             print_log(logs=errors, save_file=save_directory + "/error_log.txt")
@@ -25,7 +24,7 @@ class ModelDataBase:
                 f"{len(errors)} exists in the definition of {TIME_HORIZON}. The errors are listed in the error_log file located at {save_directory}"
             )
 
-        self.years = time["data"]
+        self.years = time["time_horizon"]
 
     def _check_model_settings(self):
 
