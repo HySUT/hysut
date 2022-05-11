@@ -15,7 +15,6 @@ class ModelDataBase:
     def _extract_time_horizon_data(self):
         time = check_time_horizon(self.model_config[TIME_HORIZON])
         errors = time["errors"]
-        print(errors)
         self.warnings.extend(time["warnings"])
         if errors:
             save_directory = self.model_config[SETTINGS]["log_path"]
