@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 import pytest
-from hysut.utils.tools import read_range_function, type_consistency_check
+from hysut.utils.tools import print_log, read_range_function, type_consistency_check
 
 
 def test_type_consistency_check():

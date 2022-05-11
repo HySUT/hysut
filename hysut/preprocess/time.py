@@ -1,4 +1,11 @@
-from hysut.utils.enums import ALL_PERIOD, RUN_PERIOD, WARM_PERIOD, COOL_PERIOD, T_SLICE, SLICE_NAME
+from hysut.utils.enums import (
+    ALL_PERIOD,
+    RUN_PERIOD,
+    WARM_PERIOD,
+    COOL_PERIOD,
+    T_SLICE,
+    SLICE_NAME,
+)
 from hysut.exceptions_logging.exceptions import EssentialSetMissing
 from hysut.utils.defaults import Time
 from hysut.utils.tools import read_range_function, type_consistency_check
@@ -150,7 +157,9 @@ def check_time_horizon(time_horizon):
     errors.extend(check_time_period_overlaps(time_data))
 
     # set all_years
-    time_data[ALL_PERIOD] = sorted([year for period in time_data.values() for year in period])
+    time_data[ALL_PERIOD] = sorted(
+        [year for period in time_data.values() for year in period]
+    )
     return {"errors": errors, "warnings": warnings, "time_horizon": time_data}
 
 

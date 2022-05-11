@@ -17,7 +17,7 @@ class ModelDataBase:
     def _extract_time_horizon_data(self):
         time = check_time_horizon(self.model_config[TIME_HORIZON])
         errors = time["errors"]
-        warnings.extend(time['warnings'])
+        warnings.extend(time["warnings"])
         if errors:
             save_directory = self.model_config[SETTINGS]["log_path"]
             print_log(logs=errors, save_file=save_directory + "/error_log.txt")
@@ -25,9 +25,7 @@ class ModelDataBase:
                 f"{len(errors)} exists in the definition of {TIME_HORIZON}. The errors are listed in the error_log file located at {save_directory}"
             )
 
-        self.years = time['data']
-
-
+        self.years = time["data"]
 
     def _check_model_settings(self):
 
@@ -35,18 +33,17 @@ class ModelDataBase:
         settings = self.model_config.setdefault(SETTINGS, {})
 
         for option in default_settings.KEYS:
-            item_set = settings.setdefault(
-                option, getattr(default_settings, option)
-            )
+            item_set = settings.setdefault(option, getattr(default_settings, option))
 
-            validation = getattr(default_settings,'validate_'+option)(item_set)
-            self.warnings.extend(validation['warning'])
-            settings[option] = validation['value']
+            validation = getattr(default_settings, "validate_" + option)(item_set)
+            self.warnings.extend(validation["warning"])
+            settings[option] = validation["value"]
 
         # check extra keys
         differences = set(settings).difference(default_settings.KEYS)
         if differences:
-            self.warnings.append(f'Following keys in the model {SETTINGS} are not valid and are ignored: \n{differences}')
+            self.warnings.append(
+                f"Following keys in the model {SETTINGS} are not valid and are ignored: \n{differences}"
+            )
 
         self.model_config[SETTINGS] = settings
-

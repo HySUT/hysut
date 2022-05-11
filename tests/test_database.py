@@ -18,8 +18,4 @@ def test_model_settings():
     test._check_model_settings()
 
     for item in settings.KEYS:
-        assert test.model_config[SETTINGS][item] == getattr(settings,item)
-
-
-
-
+        assert test.model_config[SETTINGS][item] == getattr(settings, item)
