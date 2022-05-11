@@ -1,3 +1,6 @@
+from tabulate import tabulate
+
+
 def type_consistency_check(data_list, item=None):
     """Checks if all the item in a give list have uniform data type
 
@@ -44,3 +47,15 @@ def read_range_function(range_data, item):
         errors = [f"{arg} in 'range' for '{item}'." for arg in error.args]
 
     return {"data": data, "error": errors}
+
+
+def print_log(logs, save_file=None):
+
+    table = [[i + 1, logs[i]] for i in range(len(logs))]
+    table = tabulate(table, headers=["Number", "Error/Warning"], tablefmt="pretty")
+
+    if save_file:
+        with open(save_file, "w") as file:
+            file.write(table)
+
+    return table
