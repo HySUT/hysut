@@ -2,7 +2,7 @@ import sys
 import os
 
 import pytest
-from hysut.preprocess.clusters import add_missing_years_to_cluster, check_years_clusters
+
 
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -14,8 +14,8 @@ from hysut.preprocess.time import (
     check_time_horizon,
     read_time_slice_data,
 )
-
-from hysut.utils.enums import RUN_PERIOD, COOL_PERIOD, WARM_PERIOD, T_SLICE, SLICE_NAME
+from hysut.preprocess.clusters import add_missing_years_to_cluster, check_years_clusters
+from hysut.utils.enums import ALL_PERIOD, RUN_PERIOD, COOL_PERIOD, WARM_PERIOD, T_SLICE, SLICE_NAME
 from hysut.utils.defaults import Time
 from hysut.exceptions_logging.exceptions import EssentialSetMissing
 
@@ -155,6 +155,10 @@ def test_check_time_horizon():
 
     assert warning == expexted_warning
 
+    # check all year
+    time_horizon = {RUN_PERIOD : [2021,2022,2023], WARM_PERIOD:[1990,1992]}
+    all_years = check_time_horizon(time_horizon)['time_horizon']
+    assert all_years[ALL_PERIOD] == time_horizon[WARM_PERIOD] + time_horizon[RUN_PERIOD]
 
 def test_check_time_slices():
 
