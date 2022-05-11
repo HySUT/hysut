@@ -2,6 +2,7 @@ import sys
 import os
 
 import pytest
+from hysut.preprocess.clusters import add_missing_years_to_cluster, check_years_clusters
 
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -206,3 +207,35 @@ def test_read_time_slice_data():
     output = read_time_slice_data("range(2020,2026,2)")["time_slices"]
 
     assert expected_output == output
+
+
+
+def test_check_years_clusters():
+
+    years = list(range(2020,2030))
+    clusters = {
+        "cls1" : list(range(2020,2025)),
+        "cls2" : list(range(2025,2027)),
+        "cls3" : 'range(2027,2030)',
+    }
+    output = check_years_clusters(clusters,years)
+    expected_output = {
+        "cls1" : list(range(2020,2025)),
+        "cls2" : list(range(2025,2027)),
+        "cls3" : list(range(2027,2030)),
+    }
+    assert expected_output == output['time_clusters']
+    assert output['errors'] == []
+
+    # pssing duplicated and unsorted
+    clusters = {'cls1':[2025,2020,2020,2021]}
+    assert check_years_clusters(clusters,years)['time_clusters']['cls1'] == [2020,2021,2025]
+
+def test_add_missing_years_to_cluster():
+
+    years = list(range(2020,2031))
+    cluster = {'cls1':list(range(2020,2026))}
+    expected_output = ['cls1',2026,2027,2028,2029,2030]
+    output = add_missing_years_to_cluster(cluster,years)
+
+    assert output == expected_output
